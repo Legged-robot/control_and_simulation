@@ -1,4 +1,4 @@
 [submodule "robot_description_package"]
 	path = robot_description_package
 	url = git@github.com:Legged-robot/robot_description_package.git
-	branch = develop
+	branch = master
