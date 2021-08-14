@@ -4,7 +4,7 @@ import numpy as np
 
 class SimpleQuadrupedalGaitProblem:
     
-    def __init__(self, rmodel, feet, stateWeights): # for ANYmal: feet = [lfFoot, rfFoot, lhFoot, rhFoot]
+    def __init__(self, rmodel, feet, stateWeights, defaultState): # for ANYmal: feet = [lfFoot, rfFoot, lhFoot, rhFoot]
         self.rmodel = rmodel
         self.rdata = rmodel.createData()
         self.state = crocoddyl.StateMultibody(self.rmodel)
@@ -20,6 +20,7 @@ class SimpleQuadrupedalGaitProblem:
 #         self.rhFootId = self.feet[3]
 
         # Defining default state
+        # self.rmodel.defaultState = defaultState
         q0 = self.rmodel.referenceConfigurations["standing"]
         self.rmodel.defaultState = np.concatenate([q0, np.zeros(self.rmodel.nv)])
         self.firstStep = True
@@ -64,6 +65,7 @@ class SimpleQuadrupedalGaitProblem:
             self.createSwingFootModel(
                 timeStep, [],
                 np.array([0., 0., jumpHeight]) * (k + 1) / flyingKnots + comRef)
+                # np.array([jumpLength[0], jumpLength[1], jumpLength[2] + jumpHeight]) * (k + 1) / flyingKnots + comRef)
             for k in range(flyingKnots)
         ]
         flyingDownPhase = []

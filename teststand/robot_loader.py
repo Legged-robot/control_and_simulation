@@ -21,14 +21,21 @@ class RobotLoader(object):
     has_rotor_parameters = False
     free_flyer = False
     verbose = False
+    prismatic = False
 
     def __init__(self):
         urdf_path = join(self.path, self.urdf_subpath, self.urdf_filename)
         self.model_path = getModelPath(urdf_path, self.verbose)
         self.urdf_path = join(self.model_path, urdf_path)
+        if self.free_flyer:
+            root_joint_type = pin.JointModelFreeFlyer()
+        elif self.prismatic:
+            root_joint_type = pin.JointModelPZ()
+        else:
+            root_joint_type = None
+
         self.robot = RobotWrapper.BuildFromURDF(self.urdf_path, [join(self.model_path, '../..')],
-                                                pin.JointModelFreeFlyer() if self.free_flyer else None)
-                                                # pin.JointModelPZ())
+                                                root_joint_type)
 
         if self.srdf_filename:
             self.srdf_path = join(self.model_path, self.path, self.srdf_subpath, self.srdf_filename)
@@ -74,17 +81,23 @@ def readParamsFromSrdf(model, SRDF_PATH, verbose=False, has_rotor_parameters=Tru
         q0 = model.referenceConfigurations[referencePose].copy()
     return q0
 
-
-class FOREloader(RobotLoader):
+class FOREFreeFlyerLoader(RobotLoader):
     path = 'robot_description_package'
     urdf_filename = "robot_simplified.urdf"
     srdf_filename = "robot_simplified.srdf"
     ref_posture = "standing"
     free_flyer = True
 
+class FOREPrismaticLoader(RobotLoader):
+    path = 'robot_description_package'
+    urdf_filename = "robot_simplified.urdf"
+    srdf_filename = "robot_simplified.srdf"
+    ref_posture = "standing_prismatic"
+    prismatic = True
 
 ROBOTS = {
-    'fore': FOREloader,
+    'fore_prismatic': FOREPrismaticLoader,
+    'fore_freeflyer': FOREFreeFlyerLoader,
 }
 
 def load(name):

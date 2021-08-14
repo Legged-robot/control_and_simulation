@@ -1,38 +1,45 @@
 import pinocchio as pin
 import crocoddyl
 import numpy as np
-from teststand_quadrupedal_gait_problem import SimpleQuadrupedalGaitProblem
-from teststand_robot_loader import load
-from teststand_plotting_tools import plotSolutionOneLeg
+from teststand.quadrupedal_gait_problem import SimpleQuadrupedalGaitProblem
+from teststand.robot_loader import load
+from teststand.plotting_tools import plotSolutionOneLeg
+# from crocoddyl.utils.quadruped import plotSolution
 
 PRISMATIC = False
 DISPLAY = True
 PLOT = True
-fore = load('fore')
-print("Number of degrees of freedom: ",fore.model.nq)
 # fore.initViewer(loadModel=True)
 # fore.display(fore.q0)
-from crocoddyl.utils.quadruped import plotSolution
+
+if PRISMATIC:
+    fore = load('fore_prismatic')
+else: 
+    fore = load('fore_freeflyer')
+
+print("Number of degrees of freedom: ",fore.model.nq)
 
 # Defining the initial state of the robot
-q0 = fore.model.referenceConfigurations['standing'].copy()
+q0 = fore.q0.copy()
+print("q0 joint:", q0)
 v0 = pin.utils.zero(fore.model.nv)
 x0 = np.concatenate([q0, v0])
 lfFoot = 'LF_FOOTPOINT'
 
-stateWeights = np.array([0.] * 3 + [500.] * 3 + [0.01] * (fore.model.nv - 6) + [10.] * 6 + [1.] *
-                        (fore.model.nv - 6))  #    For freeflyer joint
+if PRISMATIC:
+    stateWeights = np.array([2.] * 1 + [0.01] * (fore.model.nv - 1) + [10.] * 1 + [1.] *
+                            (fore.model.nv - 1))    #    For prismatic joint
+else:
+    stateWeights = np.array([0.] * 3 + [500.] * 3 + [0.01] * (fore.model.nv - 6) + [10.] * 6 + [1.] *
+                            (fore.model.nv - 6))  #    For freeflyer joint
 
-# stateWeights = np.array([2.] * 1 + [0.01] * (fore.model.nv - 1) + [10.] * 1 + [1.] *
-#                         (fore.model.nv - 1))    #    For prismatic joint
-
-gait = SimpleQuadrupedalGaitProblem(fore.model, [lfFoot], stateWeights)
+gait = SimpleQuadrupedalGaitProblem(fore.model, [lfFoot], stateWeights, x0)
 
 # Setting up all tasks
 GAITPHASES = {
     'jumping': {
         'jumpHeight': 0.15,
-        'jumpLength': [0.0, 0.3, 0.],
+        'jumpLength': [0., 0., 0.],
         'timeStep': 1e-2,
         'groundKnots': 10,
         'flyingKnots': 20
