@@ -60,7 +60,8 @@ if PLOT:
     
 callbacks += [crocoddyl.CallbackVerbose()]
 if DISPLAY:
-    display = crocoddyl.GepettoDisplay(fore, 4, 4, cameraTF, frameNames=[lfFoot])
+    # display = crocoddyl.GepettoDisplay(fore, 1, 1, cameraTF, frameNames=[lfFoot])
+    display = crocoddyl.GepettoDisplay(fore, 1, 1, frameNames=[lfFoot])
     callbacks += [crocoddyl.CallbackDisplay(display)]
     
 ddp.setCallbacks(callbacks)
