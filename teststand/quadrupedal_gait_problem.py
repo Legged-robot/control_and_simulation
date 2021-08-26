@@ -110,8 +110,14 @@ class SimpleQuadrupedalGaitProblem:
         nu = self.actuation.nu
         contactModel = crocoddyl.ContactModelMultiple(self.state, nu)
         for i in supportFootIds:
-            supportContactModel = crocoddyl.ContactModel3D(self.state, i, np.array([0., 0., 0.]), nu,
-                                                           np.array([0., 50.]))
+            # supportContactModel = crocoddyl.ContactModel3D(self.state, i, np.array([0., 0., 0.]), nu,
+                                                        #    np.array([0., 50.]))
+            initial_foot_placement = self.rdata.oMf[i]                                                        
+            contact_location = crocoddyl.FrameTranslation(i, initial_foot_placement.translation)
+            supportContactModel = crocoddyl.ContactModel2D(self.state, contact_location, 
+                                                            nu, np.array([0., 50]))
+            # supportContactModel = crocoddyl.ContactModel2D(self.state, i, np.array([0., 0.]), nu,
+            #                                              np.array([0., 50.]))
             contactModel.addContact(self.rmodel.frames[i].name + "_contact", supportContactModel)
 
         # Creating the cost model for a contact phase
@@ -120,12 +126,14 @@ class SimpleQuadrupedalGaitProblem:
             comResidual = crocoddyl.ResidualModelCoMPosition(self.state, comTask, nu)
             comTrack = crocoddyl.CostModelResidual(self.state, comResidual)
             costModel.addCost("comTrack", comTrack, 1e6)
-        for i in supportFootIds:
-            cone = crocoddyl.FrictionCone(self.Rsurf, self.mu, 4, False)
-            coneResidual = crocoddyl.ResidualModelContactFrictionCone(self.state, i, cone, nu)
-            coneActivation = crocoddyl.ActivationModelQuadraticBarrier(crocoddyl.ActivationBounds(cone.lb, cone.ub))
-            frictionCone = crocoddyl.CostModelResidual(self.state, coneActivation, coneResidual)
-            costModel.addCost(self.rmodel.frames[i].name + "_frictionCone", frictionCone, 1e1)
+        # for i in supportFootIds:
+            # coneResidual = crocoddyl.ResidualModelContactControlGrav(self.state, nu) # add cost without the cone 
+            # cone = crocoddyl.FrictionCone(self.Rsurf, self.mu, 2, False)
+            # coneResidual = crocoddyl.ResidualModelContactFrictionCone(self.state, i, cone, nu)
+            # coneActivation = crocoddyl.ActivationModelQuadraticBarrier(crocoddyl.ActivationBounds(cone.lb, cone.ub))
+            # frictionCone = crocoddyl.CostModelResidual(self.state, coneActivation, coneResidual)
+            # frictionCone = crocoddyl.CostModelResidual(self.state, coneResidual)
+            # costModel.addCost(self.rmodel.frames[i].name + "_frictionCone", frictionCone, 1e6)
         if swingFootTask is not None:
             for i in swingFootTask:
                 frameTranslationResidual = crocoddyl.ResidualModelFrameTranslation(self.state, i[0], i[1].translation,
