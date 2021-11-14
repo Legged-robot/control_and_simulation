@@ -29,8 +29,8 @@ float vel[][TIME_INDEXES] = {
 ```
 
 One can expect graph outputs: 
-<!-- |  |   |
-:-------------------------:|:-------------------------: -->
+|  |   |
+:-------------------------:|:-------------------------:
 ![](docs/images/sim_graphs/Simulation_com_height.png)   |  ![](docs/images/sim_graphs/Simulation_convergence.png)   
 
 ![](docs/images/sim_graphs/Simulation_pos_speed_torque.png)     
