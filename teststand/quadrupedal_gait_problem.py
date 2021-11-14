@@ -127,7 +127,7 @@ class SimpleQuadrupedalGaitProblem:
             #                                                np.array([0., 50.]))
             # oMf_i = self.rdata.oMf[i] 
             # print(oMf_i.translation[0])
-            supportContactModel = crocoddyl.ContactModel2D(self.state, i, np.array([0., 0.]), nu,
+            supportContactModel = crocoddyl.ContactModel2D(self.state, i, np.array([0.0, 0.036]), nu, # TODO: check if appropriate to define contact point like this
                                                            np.array([80., 4.]))
             contactModel.addContact(self.rmodel.frames[i].name + "_contact", supportContactModel)
 
@@ -145,7 +145,7 @@ class SimpleQuadrupedalGaitProblem:
         if isinstance(comTask,np.ndarray):
             comResidual = crocoddyl.ResidualModelCoMPosition(self.state, comTask, nu)
             comTrack = crocoddyl.CostModelResidual(self.state, comResidual)
-            costModel.addCost("comTrack", comTrack, 2e2)
+            costModel.addCost("comTrack", comTrack, 1e5)
 
         # Contact 
         for i in supportFootIds:
@@ -153,7 +153,7 @@ class SimpleQuadrupedalGaitProblem:
             coneResidual = crocoddyl.ResidualModelContactFrictionCone(self.state, i, cone, nu)
             coneActivation = crocoddyl.ActivationModelQuadraticBarrier(crocoddyl.ActivationBounds(cone.lb, cone.ub))
             frictionCone = crocoddyl.CostModelResidual(self.state, coneActivation, coneResidual)
-            costModel.addCost(self.rmodel.frames[i].name + "_frictionCone", frictionCone, 4.5e3)
+            costModel.addCost(self.rmodel.frames[i].name + "_frictionCone", frictionCone, 4.5e5)
 
         # Walking (not yet implemented)
         if swingFootTask is not None:
@@ -170,7 +170,7 @@ class SimpleQuadrupedalGaitProblem:
         # Control bounds and regularization
         ctrlBoundsActivation = crocoddyl.ActivationModelQuadraticBarrier(crocoddyl.ActivationBounds(-1.0 * self.state.pinocchio.effortLimit[1:], self.state.pinocchio.effortLimit[1:]))
         ctrlReg = crocoddyl.CostModelResidual(self.state, ctrlBoundsActivation, ctrlResidual)
-        costModel.addCost("ctrlReg", ctrlReg, 10e2)
+        costModel.addCost("ctrlReg", ctrlReg, 10e5)
 
         # State bounds and regularization
         lb = np.concatenate([self.state.lb[1:self.state.nv + 1], self.state.lb[-self.state.nv:]])
@@ -178,7 +178,7 @@ class SimpleQuadrupedalGaitProblem:
         stateBoundsResidual = crocoddyl.ResidualModelState(self.state, nu)
         stateBoundsActivation = crocoddyl.ActivationModelQuadraticBarrier(crocoddyl.ActivationBounds(lb, ub))
         stateBounds = crocoddyl.CostModelResidual(self.state, stateBoundsActivation, stateBoundsResidual)
-        costModel.addCost("stateBounds", stateBounds, 4e2)
+        costModel.addCost("stateBounds", stateBounds, 4e3)
 
         # Creating the action model for the KKT dynamics with simpletic Euler
         # integration scheme

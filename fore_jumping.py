@@ -35,7 +35,7 @@ print("Default robot state joint:", fore.model.referenceConfigurations["standing
 lfFoot = 'LF_FOOTPOINT'
 
 if PRISMATIC:
-    stateWeights = np.array([10.] * 1 + [.1] * (fore.model.nv - 1) + [10.] * 1 + [1.] *
+    stateWeights = np.array([2.] * 1 + [.1] * (fore.model.nv - 1) + [8.] * 1 + [.9] *
                             (fore.model.nv - 1))    #    For prismatic joint
     # stateWeights = np.array([0.] * 1 + [0.0] * (fore.model.nv - 1) + [0.] * 1 + [0.] *
     #                         (fore.model.nv - 1))    #    For prismatic joint
@@ -51,8 +51,8 @@ GAITPHASES = {
         'jumpHeight': 0.1,
         'jumpLength': [0., 0., 0.],
         'timeStep': 9.5e-3,
-        'groundKnots': 10,
-        'flyingKnots': 16,
+        'groundKnots': 6,
+        'flyingKnots': 17,
         'flyingKnotsRepeat': 1
     }
 }
