@@ -27,3 +27,10 @@ float vel[][TIME_INDEXES] = {
 				{0.00, 10.78, 10.32, 10.61, 10.27, 8.87, -19.99, 1.16, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.14, 1.13, 1.13, 1.13, 1.13, 1.13, 1.13, 1.13, 1.13, 1.13, 1.13, 11.14, -1.04, -1.75, -1.35, -0.96, -0.57, -0.13 }
 				};
 ```
+
+One can expect graph outputs: 
+<!-- |  |   |
+:-------------------------:|:-------------------------: -->
+![](docs/images/sim_graphs/Simulation_com_height.png)   |  ![](docs/images/sim_graphs/Simulation_convergence.png)   
+
+![](docs/images/sim_graphs/Simulation_pos_speed_torque.png)     
