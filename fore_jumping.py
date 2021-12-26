@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from teststand.quadrupedal_gait_problem import SimpleQuadrupedalGaitProblem
 from teststand.robot_loader import load
-from teststand.plotting_tools import plotSolutionOneLeg, plotConvergence
-from teststand.logging_tools import CallbackLogger, writeOneLegDataToFile
+from teststand.plotting_tools import plotSolutionOneLeg, plotConvergence, plotSolutionOneLegSeparate
+from teststand.logging_tools import CallbackLogger, writeOneLegDataToFile, writeOneLegDataToFilePythonFormat
 # from crocoddyl.utils.quadruped import plotSolution
 
 PRISMATIC = True
@@ -52,7 +52,7 @@ GAITPHASES = {
         'jumpLength': [0., 0., 0.],
         'timeStep': 9.5e-3,
         'groundKnots': 6,
-        'flyingKnots': 17,
+        'flyingKnots': 18,
         'flyingKnotsRepeat': 1
     }
 }
@@ -97,13 +97,15 @@ print(solution)
 
 # if PLOT and not PRISMATIC:
 if WRITE_TO_FILE:
-    writeOneLegDataToFile(ddp, file_name = 'oneLegData.txt', w_torques = False)
+    writeOneLegDataToFilePythonFormat(ddp, file_name = 'oneLegData.txt', w_torques = False)
 
 if PLOT:
     log = ddp.getCallbacks()[0]
 #     plotSolution(ddp, figIndex=1, show=False) # error expected since the function expects 4 legs
-    plotSolutionOneLeg(ddp)
-    title = list(GAITPHASES.keys())[0] + " (phase " + str(0) + ")"
+    plotSolutionOneLegSeparate(ddp, GAITPHASES['jumping']['timeStep'],False)
+    # plotSolutionOneLeg(ddp, GAITPHASES['jumping']['timeStep'])
+    # title = list(GAITPHASES.keys())[0] + " (phase " + str(0) + ")"
+    title = "Jumping motion convergence parameters"
     plotConvergence(costs       = log.costs, 
                     muLM        = log.u_regs,
                     muV         = log.x_regs,

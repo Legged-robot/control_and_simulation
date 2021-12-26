@@ -31,10 +31,10 @@ def writeOneLegDataToFile(solver, file_name = 'oneLegData.txt',  w_positions = T
             f.write("},\n") if k != k_indx[-1] else  f.write("}\n")
         f.write("\t\t\t\t};\n")
 
-# int Matrix[][X] = { {1,2,3,4,...,X},
-#                     {3,4,5,6,...,X},
-#                     {1,9,2,8,...,X},
-#                     {9,8,7,6,...,X} };
+    # int Matrix[][X] = { {1,2,3,4,...,X},
+    #                     {3,4,5,6,...,X},
+    #                     {1,9,2,8,...,X},
+    #                     {9,8,7,6,...,X} };
 
     if (w_velocities):
         f.write("float vel[][TIME_INDEXES] = {\n") #format in c
@@ -55,6 +55,64 @@ def writeOneLegDataToFile(solver, file_name = 'oneLegData.txt',  w_positions = T
             f.write("{:.2f} ".format(U[k][-1]))   #write last one without comma after it
             f.write("},\n") if k != k_indx[-1] else  f.write("}\n")
         f.write("\t\t\t\t};\n")
+
+    print("Done")
+    f.close()
+    return
+
+def writeOneLegDataToFilePythonFormat(solver, file_name = 'oneLegData.txt',  w_positions = True, w_velocities = True, w_torques = True):
+    f = open(file_name, "w")   
+    print("Writing data to a file: ",file_name)
+
+    rmodel = solver.problem.runningModels[0].state.pinocchio
+    xs, us = solver.xs, solver.us
+    
+
+    # Getting the state and control trajectories
+    nx, nq, nu = xs[0].shape[0], rmodel.nq, us[0].shape[0]
+    X = [0.] * nx
+    U = [0.] * nu
+    for i in range(nx):
+        X[i] = [np.asscalar(x[i]) for x in xs]
+    for i in range(nu):
+        U[i] = [np.asscalar(u[i]) if u.shape[0] != 0 else 0 for u in us]
+
+    # LF foot
+    f.write("TIME_INDEXES = {}\n".format(len(X[0])))
+    if (w_positions):
+        f.write("pdes_sim = [\n") #format in c
+        k_indx = range(1, 4)
+        for i, k in enumerate(k_indx, 1):
+            f.write("\t\t\t\t[")
+            [f.write("{:.2f}, ".format(x)) for x in X[k][:-1]]  
+            f.write("{:.2f} ".format(X[k][-1]))   #write last one without comma after it
+            f.write("],\n") if k != k_indx[-1] else  f.write("]\n")
+        f.write("\t\t\t\t]\n")
+
+    # int Matrix[][X] = { {1,2,3,4,...,X},
+    #                     {3,4,5,6,...,X},
+    #                     {1,9,2,8,...,X},
+    #                     {9,8,7,6,...,X} };
+
+    if (w_velocities):
+        f.write("vdes_sim = [\n") #format in c
+        k_indx = range(nq + 1, nq + 4)
+        for i, k in enumerate(k_indx, 1):
+            f.write("\t\t\t\t[")
+            [f.write("{:.2f}, ".format(x)) for x in X[k][:-1]]  
+            f.write("{:.2f} ".format(X[k][-1]))   #write last one without comma after it
+            f.write("],\n") if k != k_indx[-1] else  f.write("]\n")
+        f.write("\t\t\t\t]\n")
+
+    if (w_torques):
+        f.write("tdes_sim = [\n") #format in c
+        k_indx = range(0, 3)
+        for i, k in enumerate(k_indx, 1):
+            f.write("\t\t\t\t[")
+            [f.write("{:.2f}, ".format(u)) for u in U[k][:-1]]  
+            f.write("{:.2f} ".format(U[k][-1]))   #write last one without comma after it
+            f.write("],\n") if k != k_indx[-1] else  f.write("]\n")
+        f.write("\t\t\t\t]\n")
 
     print("Done")
     f.close()
